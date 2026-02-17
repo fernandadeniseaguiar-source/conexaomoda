@@ -125,6 +125,7 @@ function initPhotoUpload() {
     // Selfie button - cria input dinâmico para forçar câmera
     elements.btnSelfie.addEventListener('click', (e) => {
         e.stopPropagation();
+        e.preventDefault();
         
         // Remove input antigo se existir
         const oldInput = document.getElementById('dynamic-camera-input');
@@ -135,13 +136,17 @@ function initPhotoUpload() {
         cameraInput.type = 'file';
         cameraInput.id = 'dynamic-camera-input';
         cameraInput.accept = 'image/*';
-        cameraInput.capture = 'user';
-        cameraInput.style.display = 'none';
+        cameraInput.setAttribute('capture', 'user');
+        cameraInput.style.cssText = 'position:absolute;left:-9999px;';
         
         cameraInput.addEventListener('change', handlePhotoSelect);
         
         document.body.appendChild(cameraInput);
-        cameraInput.click();
+        
+        // Pequeno delay para garantir que o DOM processou
+        setTimeout(() => {
+            cameraInput.click();
+        }, 100);
     });
     
     // Handle file selection from gallery
