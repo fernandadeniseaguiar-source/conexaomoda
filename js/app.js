@@ -1,6 +1,10 @@
 /* ========================================
    EMDA - Banco de Talentos
-   Application JavaScript
+   Application JavaScript v2.0
+   + Verificação "já enviado"
+   + Notificação WhatsApp
+   + Tela de sucesso melhorada
+   + Botão voltar na Etapa 1
 ======================================== */
 
 // ========================================
@@ -8,8 +12,11 @@
 // ========================================
 
 const CONFIG = {
-    // URL do Google Apps Script Web App (você precisará criar e colocar aqui)
+    // URL do Google Apps Script Web App
     GOOGLE_SCRIPT_URL: 'YOUR_GOOGLE_APPS_SCRIPT_URL',
+    
+    // WhatsApp da escola para notificações
+    WHATSAPP_NOTIFY: '5531988148522',
     
     // Tempo de splash screen (ms)
     SPLASH_DURATION: 4000,
@@ -34,6 +41,7 @@ const elements = {
     installDismiss: document.getElementById('install-dismiss'),
     photoUpload: document.getElementById('photo-upload'),
     photoInput: document.getElementById('photo-input'),
+    cameraInput: document.getElementById('camera-input'),
     photoPreview: document.getElementById('photo-preview'),
     photoPlaceholder: document.getElementById('photo-placeholder'),
     btnGallery: document.getElementById('btn-gallery'),
@@ -84,23 +92,94 @@ function initSplashScreen() {
 }
 
 // ========================================
-// Welcome Screen
+// Welcome Screen + Verificação "Já Enviado"
 // ========================================
 
 function initWelcomeScreen() {
     elements.startBtn.addEventListener('click', () => {
-        // Fade out welcome screen
-        elements.welcomeScreen.style.opacity = '0';
-        elements.welcomeScreen.style.transform = 'translateY(-20px)';
-        elements.welcomeScreen.style.transition = 'all 0.5s ease';
+        // Verificar se já enviou o currículo
+        const alreadySent = localStorage.getItem('emda_curriculo_enviado');
         
+        if (alreadySent) {
+            const savedData = JSON.parse(alreadySent);
+            showAlreadySentModal(savedData);
+            return;
+        }
+        
+        showForm();
+    });
+}
+
+function showForm() {
+    elements.welcomeScreen.style.opacity = '0';
+    elements.welcomeScreen.style.transform = 'translateY(-20px)';
+    elements.welcomeScreen.style.transition = 'all 0.5s ease';
+    
+    setTimeout(() => {
+        elements.welcomeScreen.classList.add('hidden');
+        elements.formContainer.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+    }, 500);
+}
+
+function showAlreadySentModal(savedData) {
+    const existing = document.querySelector('.already-sent-modal');
+    if (existing) existing.remove();
+    
+    const dataEnvio = savedData.dataEnvio ? new Date(savedData.dataEnvio).toLocaleDateString('pt-BR') : '';
+    
+    const modal = document.createElement('div');
+    modal.className = 'already-sent-modal';
+    modal.innerHTML = `
+        <div class="already-sent-content">
+            <div class="already-sent-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A962" stroke-width="1.5">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+            </div>
+            <h3 class="already-sent-title">Currículo já cadastrado</h3>
+            <p class="already-sent-name">${savedData.nome || ''}</p>
+            ${dataEnvio ? `<p class="already-sent-date">Enviado em ${dataEnvio}</p>` : ''}
+            <p class="already-sent-description">
+                Você já cadastrou seu currículo no Banco de Talentos. Deseja atualizar seus dados?
+            </p>
+            <div class="already-sent-buttons">
+                <button class="btn btn-secondary already-sent-btn-close">
+                    Não, obrigado
+                </button>
+                <button class="btn btn-primary already-sent-btn-update">
+                    Atualizar dados
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    requestAnimationFrame(() => {
+        modal.classList.add('show');
+    });
+    
+    modal.querySelector('.already-sent-btn-close').addEventListener('click', () => {
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 300);
+    });
+    
+    modal.querySelector('.already-sent-btn-update').addEventListener('click', () => {
+        modal.classList.remove('show');
         setTimeout(() => {
-            elements.welcomeScreen.classList.add('hidden');
-            elements.formContainer.classList.remove('hidden');
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'instant' });
-        }, 500);
+            modal.remove();
+            localStorage.removeItem('emda_curriculo_enviado');
+            showForm();
+        }, 300);
+    });
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('show');
+            setTimeout(() => modal.remove(), 300);
+        }
     });
 }
 
@@ -109,50 +188,39 @@ function initWelcomeScreen() {
 // ========================================
 
 function initPhotoUpload() {
-    const photoInput = document.getElementById('photo-input');
-    const cameraInput = document.getElementById('camera-input');
-    const btnGallery = document.getElementById('btn-gallery');
-    const btnSelfie = document.getElementById('btn-selfie');
-    
-    // Gallery button
-    btnGallery.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        photoInput.click();
+    elements.photoUpload.addEventListener('click', () => {
+        elements.photoInput.click();
     });
     
-    // Selfie button
-    btnSelfie.addEventListener('click', (e) => {
-        e.preventDefault();
+    elements.btnGallery.addEventListener('click', (e) => {
         e.stopPropagation();
-        cameraInput.click();
+        elements.photoInput.click();
     });
     
-    // Handle file selection
-    photoInput.addEventListener('change', handlePhotoSelect);
-    cameraInput.addEventListener('change', handlePhotoSelect);
+    elements.btnSelfie.addEventListener('click', (e) => {
+        e.stopPropagation();
+        elements.cameraInput.click();
+    });
+    
+    elements.photoInput.addEventListener('change', handlePhotoSelect);
+    elements.cameraInput.addEventListener('change', handlePhotoSelect);
 }
 
 function handlePhotoSelect(e) {
     const file = e.target.files[0];
-    
     if (!file) return;
     
-    // Validate file type
     if (!file.type.startsWith('image/')) {
         alert('Por favor, selecione uma imagem válida.');
         return;
     }
     
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
         alert('A imagem deve ter no máximo 5MB.');
         return;
     }
     
-    // Read and preview
     const reader = new FileReader();
-    
     reader.onload = (event) => {
         photoBase64 = event.target.result;
         elements.photoPreview.src = photoBase64;
@@ -161,7 +229,6 @@ function handlePhotoSelect(e) {
         elements.photoUpload.style.borderStyle = 'solid';
         elements.photoUpload.style.borderColor = 'var(--color-gold)';
     };
-    
     reader.readAsDataURL(file);
 }
 
@@ -170,7 +237,6 @@ function handlePhotoSelect(e) {
 // ========================================
 
 function initFormNavigation() {
-    // Next buttons
     document.querySelectorAll('.btn-next').forEach(btn => {
         btn.addEventListener('click', () => {
             const nextStep = parseInt(btn.dataset.next);
@@ -180,17 +246,35 @@ function initFormNavigation() {
         });
     });
     
-    // Previous buttons
     document.querySelectorAll('.btn-prev').forEach(btn => {
         btn.addEventListener('click', () => {
             const prevStep = parseInt(btn.dataset.prev);
-            goToStep(prevStep);
+            if (prevStep === 0) {
+                // Voltar para Welcome Screen
+                backToWelcome();
+            } else {
+                goToStep(prevStep);
+            }
         });
     });
 }
 
+function backToWelcome() {
+    elements.formContainer.style.opacity = '0';
+    elements.formContainer.style.transition = 'opacity 0.3s ease';
+    
+    setTimeout(() => {
+        elements.formContainer.classList.add('hidden');
+        elements.formContainer.style.opacity = '';
+        elements.formContainer.style.transition = '';
+        elements.welcomeScreen.classList.remove('hidden');
+        elements.welcomeScreen.style.opacity = '1';
+        elements.welcomeScreen.style.transform = 'translateY(0)';
+        window.scrollTo({ top: 0, behavior: 'instant' });
+    }, 300);
+}
+
 function goToStep(step) {
-    // Update form steps
     elements.formSteps.forEach(formStep => {
         formStep.classList.remove('active');
         if (parseInt(formStep.dataset.step) === step) {
@@ -198,10 +282,8 @@ function goToStep(step) {
         }
     });
     
-    // Update progress indicators
     elements.progressSteps.forEach((progressStep, index) => {
         progressStep.classList.remove('active', 'completed');
-        
         if (index + 1 < step) {
             progressStep.classList.add('completed');
         } else if (index + 1 === step) {
@@ -209,7 +291,6 @@ function goToStep(step) {
         }
     });
     
-    // Update progress lines
     elements.progressFill.forEach((fill, index) => {
         if (index < step - 1) {
             fill.style.width = '100%';
@@ -219,8 +300,6 @@ function goToStep(step) {
     });
     
     currentStep = step;
-    
-    // Scroll to top of form
     elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -246,16 +325,13 @@ function validateStep(step) {
         }
     });
     
-    // Step-specific validation
     if (step === 1) {
-        // Email validation
         const emailInput = document.getElementById('email');
         if (emailInput.value && !isValidEmail(emailInput.value)) {
             isValid = false;
             highlightError(emailInput);
         }
         
-        // Phone validation
         const phoneInput = document.getElementById('whatsapp');
         if (phoneInput.value && !isValidPhone(phoneInput.value)) {
             isValid = false;
@@ -264,7 +340,6 @@ function validateStep(step) {
     }
     
     if (step === 2) {
-        // At least one course must be selected
         const cursos = document.querySelectorAll('input[name="cursos"]:checked');
         if (cursos.length === 0) {
             isValid = false;
@@ -273,9 +348,8 @@ function validateStep(step) {
     }
     
     if (!isValid) {
-        // Shake animation for invalid form
         currentFormStep.style.animation = 'none';
-        currentFormStep.offsetHeight; // Trigger reflow
+        currentFormStep.offsetHeight;
         currentFormStep.style.animation = 'shake 0.5s ease';
     }
     
@@ -296,7 +370,6 @@ function isValidEmail(email) {
 }
 
 function isValidPhone(phone) {
-    // Remove formatting
     const cleaned = phone.replace(/\D/g, '');
     return cleaned.length >= 10 && cleaned.length <= 11;
 }
@@ -401,13 +474,11 @@ function initCityAutocomplete() {
         
         suggestionsContainer.classList.add('show');
         
-        // Click handler for suggestions
         suggestionsContainer.querySelectorAll('.autocomplete-item').forEach(item => {
             item.addEventListener('click', () => {
                 cidadeInput.value = item.dataset.value.split(',')[0];
                 suggestionsContainer.classList.remove('show');
                 
-                // Auto-select state
                 const state = item.dataset.value.split(',')[1]?.trim();
                 if (state) {
                     const estadoSelect = document.getElementById('estado');
@@ -419,7 +490,6 @@ function initCityAutocomplete() {
         });
     });
     
-    // Keyboard navigation
     cidadeInput.addEventListener('keydown', (e) => {
         const items = suggestionsContainer.querySelectorAll('.autocomplete-item');
         
@@ -445,7 +515,6 @@ function initCityAutocomplete() {
         });
     }
     
-    // Close on click outside
     document.addEventListener('click', (e) => {
         if (!cidadeInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
             suggestionsContainer.classList.remove('show');
@@ -460,30 +529,35 @@ function initCityAutocomplete() {
 async function handleSubmit(e) {
     e.preventDefault();
     
-    // Validate final step
-    if (!validateStep(3)) {
-        return;
-    }
+    if (!validateStep(3)) return;
     
-    // Check terms
     const termos = document.getElementById('termos');
     if (!termos.checked) {
         alert('Por favor, aceite os termos para continuar.');
         return;
     }
     
-    // Show loading state
     setLoadingState(true);
     
-    // Collect form data
     const formData = collectFormData();
     
     try {
-        // Send to Google Sheets
         await sendToGoogleSheets(formData);
         
-        // Show success modal
-        showSuccessModal();
+        // Salvar flag de "já enviou"
+        localStorage.setItem('emda_curriculo_enviado', JSON.stringify({
+            nome: formData.nome,
+            email: formData.email,
+            dataEnvio: new Date().toISOString()
+        }));
+        
+        // Mostrar tela de sucesso
+        showSuccessScreen(formData);
+        
+        // Enviar notificação via WhatsApp (abre em nova aba)
+        setTimeout(() => {
+            sendWhatsAppNotification(formData);
+        }, 1500);
         
     } catch (error) {
         console.error('Erro ao enviar:', error);
@@ -494,7 +568,6 @@ async function handleSubmit(e) {
 }
 
 function collectFormData() {
-    // Get selected courses
     const cursos = Array.from(document.querySelectorAll('input[name="cursos"]:checked'))
         .map(cb => cb.value)
         .join(', ');
@@ -519,10 +592,8 @@ function collectFormData() {
 }
 
 async function sendToGoogleSheets(data) {
-    // Se a URL do Google Script não estiver configurada, simula sucesso
     if (CONFIG.GOOGLE_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
         console.log('Dados coletados (modo simulação):', data);
-        // Simula delay de rede
         await new Promise(resolve => setTimeout(resolve, 1500));
         return { success: true };
     }
@@ -530,13 +601,128 @@ async function sendToGoogleSheets(data) {
     const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     });
     
     return { success: true };
+}
+
+// ========================================
+// WhatsApp Notification
+// ========================================
+
+function sendWhatsAppNotification(formData) {
+    const cursos = formData.cursos || 'Não informado';
+    const cidade = formData.cidade ? `${formData.cidade}/${formData.estado}` : 'Não informada';
+    
+    const message = 
+        `📋 *NOVO CURRÍCULO - Banco de Talentos EMDA*\n\n` +
+        `👤 *Nome:* ${formData.nome}\n` +
+        `📧 *Email:* ${formData.email}\n` +
+        `📱 *WhatsApp:* ${formData.whatsapp}\n` +
+        `📍 *Cidade:* ${cidade}\n` +
+        `🎓 *Cursos:* ${cursos}\n` +
+        `📅 *Conclusão:* ${formData.ano_conclusao || 'Não informado'}\n` +
+        (formData.instagram ? `📸 *Instagram:* @${formData.instagram}\n` : '') +
+        (formData.portfolio ? `🔗 *Portfólio:* ${formData.portfolio}\n` : '') +
+        (formData.linkedin ? `💼 *LinkedIn:* ${formData.linkedin}\n` : '') +
+        `\n📅 *Enviado em:* ${new Date().toLocaleString('pt-BR')}`;
+    
+    const encoded = encodeURIComponent(message);
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${CONFIG.WHATSAPP_NOTIFY}&text=${encoded}`;
+    
+    window.open(whatsappUrl, '_blank');
+}
+
+// ========================================
+// Success Screen
+// ========================================
+
+function showSuccessScreen(formData) {
+    elements.formContainer.classList.add('hidden');
+    elements.successModal.classList.add('hidden');
+    
+    const successScreen = document.createElement('div');
+    successScreen.className = 'success-screen';
+    successScreen.innerHTML = `
+        <div class="success-screen-bg">
+            <div class="success-particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        <div class="success-screen-content">
+            <div class="success-check-container">
+                <svg class="success-check" width="80" height="80" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="#C9A962" stroke-width="1.5" opacity="0.3"/>
+                    <circle class="success-circle-anim" cx="12" cy="12" r="10" stroke="#C9A962" stroke-width="1.5" 
+                        stroke-dasharray="63" stroke-dashoffset="63"/>
+                    <polyline class="success-tick-anim" points="8 12.5 11 15.5 16 9" stroke="#C9A962" stroke-width="2" 
+                        stroke-linecap="round" stroke-linejoin="round"
+                        stroke-dasharray="20" stroke-dashoffset="20"/>
+                </svg>
+            </div>
+            
+            <h2 class="success-title">Currículo Enviado!</h2>
+            
+            <div class="success-divider">
+                <span class="divider-line"></span>
+                <span class="divider-star">✦</span>
+                <span class="divider-line"></span>
+            </div>
+            
+            <p class="success-name">${formData.nome}</p>
+            
+            <p class="success-message">
+                Obrigado por se cadastrar no nosso Banco de Talentos. 
+                Entraremos em contato caso surja uma oportunidade compatível com seu perfil.
+            </p>
+            
+            <div class="success-info">
+                <div class="success-info-item">
+                    <span class="success-info-icon">🎓</span>
+                    <span>${formData.cursos}</span>
+                </div>
+                <div class="success-info-item">
+                    <span class="success-info-icon">📍</span>
+                    <span>${formData.cidade}/${formData.estado}</span>
+                </div>
+            </div>
+            
+            <div class="success-actions">
+                <a href="https://escolademodadeniseaguiar.com.br" class="btn btn-primary success-btn" target="_blank">
+                    Visitar nosso site
+                </a>
+                <button class="btn btn-secondary success-btn success-btn-close">
+                    Fechar
+                </button>
+            </div>
+            
+            <div class="success-footer-area">
+                <img src="img/logo-white.png" alt="EMDA" class="success-footer-logo">
+                <p>Escola de Moda Denise Aguiar</p>
+                <p class="success-footer-small">+37 anos formando profissionais de moda</p>
+            </div>
+        </div>
+    `;
+    
+    elements.app.appendChild(successScreen);
+    
+    // Botão fechar
+    successScreen.querySelector('.success-btn-close').addEventListener('click', () => {
+        window.close();
+        // Fallback se window.close() não funcionar
+        location.reload();
+    });
+    
+    requestAnimationFrame(() => {
+        successScreen.classList.add('show');
+    });
 }
 
 function setLoadingState(isLoading) {
@@ -577,44 +763,29 @@ function initServiceWorker() {
 let deferredPrompt = null;
 
 function initInstallPrompt() {
-    // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
-        console.log('App já está instalado');
         return;
     }
     
-    // Check if dismissed recently (24 hours)
     const dismissedAt = localStorage.getItem('installDismissed');
     if (dismissedAt && (Date.now() - parseInt(dismissedAt)) < 24 * 60 * 60 * 1000) {
         return;
     }
     
-    // Listen for beforeinstallprompt (Android/Chrome)
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        
-        // Show install prompt after a delay
-        setTimeout(() => {
-            showInstallPrompt();
-        }, 3000);
+        setTimeout(() => showInstallPrompt(), 3000);
     });
     
-    // Handle install button click
     elements.installAccept.addEventListener('click', handleInstallClick);
-    
-    // Handle dismiss button click
     elements.installDismiss.addEventListener('click', hideInstallPrompt);
     
-    // Check for iOS
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isInStandaloneMode = window.navigator.standalone === true;
     
     if (isIOS && !isInStandaloneMode) {
-        // Show iOS-specific instructions after delay
-        setTimeout(() => {
-            showIOSInstallPrompt();
-        }, 5000);
+        setTimeout(() => showIOSInstallPrompt(), 5000);
     }
 }
 
@@ -629,28 +800,17 @@ function hideInstallPrompt() {
 
 async function handleInstallClick() {
     if (!deferredPrompt) {
-        // Fallback for browsers that don't support beforeinstallprompt
         showIOSInstallPrompt();
         return;
     }
-    
-    // Show the install prompt
     deferredPrompt.prompt();
-    
-    // Wait for the user's response
     const { outcome } = await deferredPrompt.userChoice;
-    
     console.log('Resultado da instalação:', outcome);
-    
-    // Clear the deferred prompt
     deferredPrompt = null;
-    
-    // Hide the install banner
     hideInstallPrompt();
 }
 
 function showIOSInstallPrompt() {
-    // Create iOS-specific modal
     const modal = document.createElement('div');
     modal.className = 'ios-install-modal';
     modal.innerHTML = `
@@ -680,20 +840,14 @@ function showIOSInstallPrompt() {
     `;
     
     document.body.appendChild(modal);
-    
-    // Close on backdrop click
     modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.remove();
-        }
+        if (e.target === modal) modal.remove();
     });
-    
-    // Hide the regular install prompt if visible
     hideInstallPrompt();
 }
 
 // ========================================
-// Shake Animation (CSS-in-JS fallback)
+// Shake Animation
 // ========================================
 
 const styleSheet = document.createElement('style');

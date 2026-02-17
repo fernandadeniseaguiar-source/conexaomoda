@@ -162,7 +162,7 @@
                     <div class="photo-upload-container">
                         <div class="photo-upload" id="photo-upload">
                             <input type="file" id="photo-input" accept="image/*" hidden>
-                            <input type="file" id="camera-input" accept="image/*" capture="user" hidden>
+                            <input type="file" id="camera-input" accept="image/*" capture hidden>
                             <div class="photo-placeholder" id="photo-placeholder">
                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -257,7 +257,12 @@
                     </div>
 
                     <div class="form-navigation">
-                        <div></div>
+                        <button type="button" class="btn btn-secondary btn-prev" data-prev="0">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 12H5M12 19l-7-7 7-7"/>
+                            </svg>
+                            Voltar
+                        </button>
                         <button type="button" class="btn btn-primary btn-next" data-next="2">
                             Próximo
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
