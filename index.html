@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="EMDA Talentos">
+    <meta name="description" content="Banco de Talentos - Escola de Moda Denise Aguiar">
+    
+    <title>EMDA | Banco de Talentos</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="img/icon-192.png">
+    <link rel="icon" type="image/png" href="img/icon-192.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo-container">
+                <img src="img/logo-dress.png" alt="" class="splash-dress">
+                <img src="img/logo-text.png" alt="EMDA" class="splash-text">
+            </div>
+            <div class="splash-loader">
+                <div class="loader-line"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="app hidden">
+        
+        <!-- Welcome Screen -->
+        <section id="welcome-screen" class="welcome-screen">
+            <div class="welcome-background">
+                <div class="welcome-gradient"></div>
+                <div class="welcome-pattern"></div>
+            </div>
+            
+            <div class="welcome-content">
+                <div class="welcome-logo-container">
+                    <img src="img/logo-white.png" alt="Escola de Moda Denise Aguiar" class="welcome-logo">
+                </div>
+                
+                <div class="welcome-text">
+                    <div class="welcome-divider">
+                        <span class="divider-line"></span>
+                        <span class="divider-star">✦</span>
+                        <span class="divider-line"></span>
+                    </div>
+                    
+                    <h1 class="welcome-title">Banco de Talentos</h1>
+                    
+                    <p class="welcome-description">
+                        Conectamos os melhores profissionais formados pela nossa escola com oportunidades exclusivas no mercado da moda.
+                    </p>
+                </div>
+                
+                <div class="welcome-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">📋</span>
+                        <span class="feature-text">Cadastre seu currículo</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✨</span>
+                        <span class="feature-text">Mostre seu portfólio</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🎯</span>
+                        <span class="feature-text">Receba oportunidades</span>
+                    </div>
+                </div>
+                
+                <button id="start-btn" class="welcome-btn">
+                    <span>Começar Cadastro</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+                
+                <p class="welcome-footer">
+                    +37 anos formando profissionais de moda
+                </p>
+                <p class="welcome-copyright">
+                    © 2026 Escola de Moda Denise Aguiar
+                </p>
+            </div>
+        </section>
+
+        <!-- Form Section (hidden initially) -->
+        <div id="form-container" class="form-container hidden">
+        
+        <!-- Header -->
+        <header class="header">
+            <div class="header-inner">
+                <img src="img/logo-white.png" alt="EMDA" class="header-logo">
+                <span class="header-divider"></span>
+                <span class="header-subtitle">Banco de Talentos</span>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="hero-title-line">Faça parte</span>
+                    <span class="hero-title-line accent">do nosso time</span>
+                </h1>
+                <p class="hero-description">
+                    Cadastre seu currículo e conecte-se com oportunidades exclusivas no mundo da moda.
+                </p>
+            </div>
+            <div class="hero-decoration">
+                <div class="decoration-circle"></div>
+                <div class="decoration-line"></div>
+            </div>
+        </section>
+
+        <!-- Form Section -->
+        <section class="form-section">
+            <form id="curriculum-form" class="curriculum-form">
+                <!-- Progress Indicator -->
+                <div class="form-progress">
+                    <div class="progress-step active" data-step="1">
+                        <span class="step-number">01</span>
+                        <span class="step-label">Dados Pessoais</span>
+                    </div>
+                    <div class="progress-line">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <span class="step-number">02</span>
+                        <span class="step-label">Formação</span>
+                    </div>
+                    <div class="progress-line">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <span class="step-number">03</span>
+                        <span class="step-label">Portfólio</span>
+                    </div>
+                </div>
+
+                <!-- Step 1: Dados Pessoais -->
+                <div class="form-step active" data-step="1">
+                    <div class="step-header">
+                        <span class="step-tag">Etapa 01</span>
+                        <h2 class="step-title">Dados Pessoais</h2>
+                        <p class="step-description">Conte-nos um pouco sobre você</p>
+                    </div>
+
+                    <!-- Photo Upload -->
+                    <div class="photo-upload-container">
+                        <div class="photo-upload" id="photo-upload">
+                            <input type="file" id="photo-input" accept="image/*" hidden>
+                            <input type="file" id="camera-input" accept="image/*" capture hidden>
+                            <div class="photo-placeholder" id="photo-placeholder">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                <span>Adicionar foto</span>
+                            </div>
+                            <img id="photo-preview" class="photo-preview hidden" alt="Preview">
+                        </div>
+                        <div class="photo-options">
+                            <button type="button" id="btn-gallery" class="photo-option-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                <span>Galeria</span>
+                            </button>
+                            <button type="button" id="btn-selfie" class="photo-option-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                    <circle cx="12" cy="13" r="4"/>
+                                </svg>
+                                <span>Selfie</span>
+                            </button>
+                        </div>
+                        <p class="photo-hint">Foto profissional (opcional)</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="nome" class="form-label">Nome Completo *</label>
+                            <input type="text" id="nome" name="nome" class="form-input" required placeholder="Seu nome completo">
+                            <span class="input-line"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">E-mail *</label>
+                            <input type="email" id="email" name="email" class="form-input" required placeholder="seu@email.com">
+                            <span class="input-line"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="whatsapp" class="form-label">WhatsApp *</label>
+                            <input type="tel" id="whatsapp" name="whatsapp" class="form-input" required placeholder="(31) 99999-9999">
+                            <span class="input-line"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cidade" class="form-label">Cidade *</label>
+                            <div class="autocomplete-container">
+                                <input type="text" id="cidade" name="cidade" class="form-input" required placeholder="Digite sua cidade" autocomplete="off">
+                                <span class="input-line"></span>
+                                <div id="cidade-suggestions" class="autocomplete-suggestions"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="estado" class="form-label">Estado *</label>
+                            <select id="estado" name="estado" class="form-input form-select" required>
+                                <option value="">Selecione</option>
+                                <option value="AC">Acre</option>
+                                <option value="AL">Alagoas</option>
+                                <option value="AP">Amapá</option>
+                                <option value="AM">Amazonas</option>
+                                <option value="BA">Bahia</option>
+                                <option value="CE">Ceará</option>
+                                <option value="DF">Distrito Federal</option>
+                                <option value="ES">Espírito Santo</option>
+                                <option value="GO">Goiás</option>
+                                <option value="MA">Maranhão</option>
+                                <option value="MT">Mato Grosso</option>
+                                <option value="MS">Mato Grosso do Sul</option>
+                                <option value="MG">Minas Gerais</option>
+                                <option value="PA">Pará</option>
+                                <option value="PB">Paraíba</option>
+                                <option value="PR">Paraná</option>
+                                <option value="PE">Pernambuco</option>
+                                <option value="PI">Piauí</option>
+                                <option value="RJ">Rio de Janeiro</option>
+                                <option value="RN">Rio Grande do Norte</option>
+                                <option value="RS">Rio Grande do Sul</option>
+                                <option value="RO">Rondônia</option>
+                                <option value="RR">Roraima</option>
+                                <option value="SC">Santa Catarina</option>
+                                <option value="SP">São Paulo</option>
+                                <option value="SE">Sergipe</option>
+                                <option value="TO">Tocantins</option>
+                            </select>
+                            <span class="input-line"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-navigation">
+                        <div></div>
+                        <button type="button" class="btn btn-primary btn-next" data-next="2">
+                            Próximo
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Formação -->
+                <div class="form-step" data-step="2">
+                    <div class="step-header">
+                        <span class="step-tag">Etapa 02</span>
+                        <h2 class="step-title">Formação EMDA</h2>
+                        <p class="step-description">Sua trajetória na escola</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label class="form-label">Cursos realizados na EMDA *</label>
+                            <div class="checkbox-grid">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="cursos" value="Design de Moda">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">Design de Moda</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="cursos" value="Consultoria de Imagem">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">Consultoria de Imagem</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="cursos" value="Estamparia Digital">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">Estamparia Digital</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="cursos" value="Fashion Business">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">Fashion Business</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="cursos" value="Marketing de Moda">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">Marketing de Moda</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="cursos" value="Styling para Consultoras">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">Styling para Consultoras</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="cursos" value="Desenho de Moda Digital">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">Desenho de Moda Digital</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="cursos" value="Tecidos">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">Tecidos</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="cursos" value="Processos e Gestão">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">Processos e Gestão</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ano_conclusao" class="form-label">Ano de Conclusão *</label>
+                            <select id="ano_conclusao" name="ano_conclusao" class="form-input form-select" required>
+                                <option value="">Selecione o ano</option>
+                                <option value="2026">2026</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                                <option value="2021">2021</option>
+                                <option value="2020">2020</option>
+                                <option value="2019">2019</option>
+                                <option value="2018">2018</option>
+                                <option value="2017">2017</option>
+                                <option value="2016">2016</option>
+                                <option value="2015">2015</option>
+                                <option value="anterior">Anterior a 2015</option>
+                            </select>
+                            <span class="input-line"></span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="experiencia" class="form-label">Experiência Profissional</label>
+                            <textarea id="experiencia" name="experiencia" class="form-input form-textarea" rows="4" placeholder="Descreva suas experiências na área da moda, empresas onde trabalhou, projetos realizados..."></textarea>
+                            <span class="input-line"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-secondary btn-prev" data-prev="1">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 12H5M12 19l-7-7 7-7"/>
+                            </svg>
+                            Voltar
+                        </button>
+                        <button type="button" class="btn btn-primary btn-next" data-next="3">
+                            Próximo
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Portfólio -->
+                <div class="form-step" data-step="3">
+                    <div class="step-header">
+                        <span class="step-tag">Etapa 03</span>
+                        <h2 class="step-title">Portfólio & Redes</h2>
+                        <p class="step-description">Mostre seu trabalho</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="instagram" class="form-label">Instagram Profissional</label>
+                            <div class="input-with-icon">
+                                <span class="input-icon">@</span>
+                                <input type="text" id="instagram" name="instagram" class="form-input with-icon" placeholder="seu.perfil">
+                            </div>
+                            <span class="input-line"></span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="portfolio" class="form-label">Link do Portfólio</label>
+                            <input type="url" id="portfolio" name="portfolio" class="form-input" placeholder="https://seuportfolio.com">
+                            <span class="input-line"></span>
+                            <span class="input-hint">Behance, site pessoal, Google Drive, etc.</span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="linkedin" class="form-label">LinkedIn</label>
+                            <input type="url" id="linkedin" name="linkedin" class="form-input" placeholder="https://linkedin.com/in/seuperfil">
+                            <span class="input-line"></span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="sobre" class="form-label">Sobre você</label>
+                            <textarea id="sobre" name="sobre" class="form-input form-textarea" rows="4" placeholder="Conte um pouco sobre você, seus objetivos na moda e o que te motiva..."></textarea>
+                            <span class="input-line"></span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="checkbox-item checkbox-terms">
+                                <input type="checkbox" id="termos" name="termos" required>
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-label">Concordo com o uso dos meus dados para fins de recrutamento pela EMDA *</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-secondary btn-prev" data-prev="2">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 12H5M12 19l-7-7 7-7"/>
+                            </svg>
+                            Voltar
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <span class="btn-text">Enviar Currículo</span>
+                            <span class="btn-loading hidden">
+                                <svg class="spinner" width="20" height="20" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="30 70"/>
+                                </svg>
+                            </span>
+                            <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Success Modal -->
+        <div id="success-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <h3 class="modal-title">Currículo Enviado!</h3>
+                <p class="modal-description">
+                    Obrigado por se cadastrar no nosso Banco de Talentos. Entraremos em contato caso surja uma oportunidade compatível com seu perfil.
+                </p>
+                <button class="btn btn-primary modal-btn" onclick="location.reload()">
+                    Fechar
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <img src="img/logo-white.png" alt="EMDA" class="footer-logo">
+                <p class="footer-text">Escola de Moda Denise Aguiar</p>
+                <p class="footer-text small">© 2025 - Todos os direitos reservados</p>
+            </div>
+        </footer>
+        
+        </div><!-- End form-container -->
+    </div>
+
+    <!-- Install Prompt -->
+    <div id="install-prompt" class="install-prompt">
+        <div class="install-content">
+            <div class="install-icon">
+                <img src="img/icon-72.png" alt="EMDA">
+            </div>
+            <div class="install-text">
+                <strong>Instalar App</strong>
+                <span>Adicione à tela inicial para acesso rápido</span>
+            </div>
+        </div>
+        <div class="install-buttons">
+            <button id="install-dismiss" class="install-btn-dismiss">Agora não</button>
+            <button id="install-accept" class="install-btn-accept">Instalar</button>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
