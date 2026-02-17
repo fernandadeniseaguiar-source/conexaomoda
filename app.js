@@ -109,48 +109,28 @@ function initWelcomeScreen() {
 // ========================================
 
 function initPhotoUpload() {
-    // Click on photo preview area to open gallery
-    elements.photoUpload.addEventListener('click', (e) => {
-        if (e.target === elements.photoUpload || e.target === elements.photoPlaceholder || e.target.closest('#photo-placeholder')) {
-            elements.photoInput.click();
-        }
-    });
+    const photoInput = document.getElementById('photo-input');
+    const cameraInput = document.getElementById('camera-input');
+    const btnGallery = document.getElementById('btn-gallery');
+    const btnSelfie = document.getElementById('btn-selfie');
     
     // Gallery button
-    elements.btnGallery.addEventListener('click', (e) => {
-        e.stopPropagation();
-        elements.photoInput.click();
-    });
-    
-    // Selfie button - cria input dinâmico para forçar câmera
-    elements.btnSelfie.addEventListener('click', (e) => {
-        e.stopPropagation();
+    btnGallery.addEventListener('click', (e) => {
         e.preventDefault();
-        
-        // Remove input antigo se existir
-        const oldInput = document.getElementById('dynamic-camera-input');
-        if (oldInput) oldInput.remove();
-        
-        // Cria novo input com capture="user"
-        const cameraInput = document.createElement('input');
-        cameraInput.type = 'file';
-        cameraInput.id = 'dynamic-camera-input';
-        cameraInput.accept = 'image/*';
-        cameraInput.setAttribute('capture', 'user');
-        cameraInput.style.cssText = 'position:absolute;left:-9999px;';
-        
-        cameraInput.addEventListener('change', handlePhotoSelect);
-        
-        document.body.appendChild(cameraInput);
-        
-        // Pequeno delay para garantir que o DOM processou
-        setTimeout(() => {
-            cameraInput.click();
-        }, 100);
+        e.stopPropagation();
+        photoInput.click();
     });
     
-    // Handle file selection from gallery
-    elements.photoInput.addEventListener('change', handlePhotoSelect);
+    // Selfie button
+    btnSelfie.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        cameraInput.click();
+    });
+    
+    // Handle file selection
+    photoInput.addEventListener('change', handlePhotoSelect);
+    cameraInput.addEventListener('change', handlePhotoSelect);
 }
 
 function handlePhotoSelect(e) {
