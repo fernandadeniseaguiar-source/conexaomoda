@@ -2860,3 +2860,39 @@ body {
 .admin-photo-full-close:hover {
     background: rgba(255,255,255,0.2);
 }
+
+/* Password toggle eye */
+.input-password-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-password-wrap .form-input {
+    padding-right: 40px;
+    width: 100%;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    color: var(--color-gray-300);
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-toggle-btn:hover {
+    color: var(--color-gold);
+}
+
+.password-toggle-btn .hidden {
+    display: none;
+}

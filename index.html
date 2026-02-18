@@ -507,7 +507,17 @@
             <div class="admin-login-form">
                 <div class="form-group">
                     <label class="form-label">Senha de acesso</label>
-                    <input type="password" id="admin-password" class="form-input" placeholder="Digite a senha" autocomplete="off">
+                    <div class="input-password-wrap">
+                        <input type="password" id="admin-password" class="form-input" placeholder="Digite a senha" autocomplete="off">
+                        <button type="button" class="password-toggle-btn" data-target="admin-password">
+                            <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg class="eye-closed hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </button>
+                    </div>
                     <span class="input-line"></span>
                 </div>
                 <p id="admin-login-error" class="admin-login-error hidden">Senha incorreta</p>
@@ -658,17 +668,35 @@
                 <p class="settings-section-title">Alterar Senha</p>
                 <div class="form-group">
                     <label class="form-label">Senha atual</label>
-                    <input type="password" id="admin-pw-current" class="form-input" placeholder="Digite a senha atual" autocomplete="off">
+                    <div class="input-password-wrap">
+                        <input type="password" id="admin-pw-current" class="form-input" placeholder="Digite a senha atual" autocomplete="off">
+                        <button type="button" class="password-toggle-btn" data-target="admin-pw-current">
+                            <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-closed hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                    </div>
                     <span class="input-line"></span>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Nova senha</label>
-                    <input type="password" id="admin-pw-new" class="form-input" placeholder="Digite a nova senha" autocomplete="off">
+                    <div class="input-password-wrap">
+                        <input type="password" id="admin-pw-new" class="form-input" placeholder="Digite a nova senha" autocomplete="off">
+                        <button type="button" class="password-toggle-btn" data-target="admin-pw-new">
+                            <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-closed hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                    </div>
                     <span class="input-line"></span>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Confirmar nova senha</label>
-                    <input type="password" id="admin-pw-confirm" class="form-input" placeholder="Repita a nova senha" autocomplete="off">
+                    <div class="input-password-wrap">
+                        <input type="password" id="admin-pw-confirm" class="form-input" placeholder="Repita a nova senha" autocomplete="off">
+                        <button type="button" class="password-toggle-btn" data-target="admin-pw-confirm">
+                            <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-closed hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                    </div>
                     <span class="input-line"></span>
                 </div>
                 <p id="admin-pw-error" class="admin-login-error hidden"></p>

@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDuplicateCheck();
     initAdmin();
     initBiometric();
+    initPasswordToggles();
     initServiceWorker();
     initInstallPrompt();
 });
@@ -1397,6 +1398,7 @@ let ADMIN_PIN = '2026@Tifannypaes';
 let adminData = [];
 let adminDeleteRow = null;
 let adminDeleteName = '';
+let adminAuthMode = 'pin'; // 'pin' ou 'bio'
 
 function initAdmin() {
     const accessBtn = document.getElementById('admin-access-btn');
@@ -1444,6 +1446,7 @@ function initAdmin() {
     function adminLogin() {
         const pin = passwordInput.value.trim();
         if (pin === ADMIN_PIN) {
+            adminAuthMode = 'pin';
             loginOverlay.classList.add('hidden');
             openAdminPanel();
             // Oferecer ativar biometria se ainda não tem
@@ -1521,6 +1524,13 @@ function initAdmin() {
     pwBtn.addEventListener('click', () => adminChangePassword());
 }
 
+function getAdminAuthParam() {
+    if (adminAuthMode === 'bio') {
+        return 'biotoken=emda-bio-auth';
+    }
+    return 'pin=' + encodeURIComponent(ADMIN_PIN);
+}
+
 function openAdminPanel() {
     document.getElementById('admin-panel').classList.remove('hidden');
     pushAppState('admin-panel');
@@ -1537,7 +1547,7 @@ async function loadAdminData() {
     list.innerHTML = '';
     
     try {
-        const url = CONFIG.GOOGLE_SCRIPT_URL + '?action=list&pin=' + ADMIN_PIN;
+        const url = CONFIG.GOOGLE_SCRIPT_URL + '?action=list&' + getAdminAuthParam();
         const response = await fetch(url);
         const json = await response.json();
         
@@ -1758,7 +1768,7 @@ async function adminDeleteConfirmed() {
     deleteBtn.disabled = true;
     
     try {
-        const url = CONFIG.GOOGLE_SCRIPT_URL + '?action=delete&pin=' + ADMIN_PIN + '&row=' + adminDeleteRow;
+        const url = CONFIG.GOOGLE_SCRIPT_URL + '?action=delete&' + getAdminAuthParam() + '&row=' + adminDeleteRow;
         const response = await fetch(url);
         const json = await response.json();
         
@@ -2012,6 +2022,7 @@ async function biometricLogin() {
         await navigator.credentials.get(getOptions);
         
         // Biometria validada — abrir painel admin
+        adminAuthMode = 'bio';
         document.getElementById('admin-login').classList.add('hidden');
         openAdminPanel();
         
@@ -2084,4 +2095,31 @@ function openPhotoFullscreen(photoUrl) {
     img.src = photoUrl;
     overlay.classList.remove('hidden');
     pushAppState('admin-photo');
+}
+
+// ========================================
+// Password Toggle (show/hide)
+// ========================================
+
+function initPasswordToggles() {
+    document.querySelectorAll('.password-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.dataset.target;
+            const input = document.getElementById(targetId);
+            if (!input) return;
+            
+            const eyeOpen = btn.querySelector('.eye-open');
+            const eyeClosed = btn.querySelector('.eye-closed');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
+            } else {
+                input.type = 'password';
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
+            }
+        });
+    });
 }
