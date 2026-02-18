@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCursosAnos();
     initDuplicateCheck();
     initAdmin();
+    initBiometric();
     initServiceWorker();
     initInstallPrompt();
 });
@@ -619,26 +620,63 @@ function initHistoryNavigation() {
     window.addEventListener('popstate', (e) => {
         const state = e.state;
         
+        // Fechar overlays admin primeiro (maior prioridade)
+        const photoFull = document.getElementById('admin-photo-full');
+        if (photoFull && !photoFull.classList.contains('hidden')) {
+            photoFull.classList.add('hidden');
+            pushAppState(getCurrentScreen());
+            return;
+        }
+        
+        const deleteConfirm = document.getElementById('admin-delete-confirm');
+        if (deleteConfirm && !deleteConfirm.classList.contains('hidden')) {
+            deleteConfirm.classList.add('hidden');
+            pushAppState(getCurrentScreen());
+            return;
+        }
+        
+        const changePw = document.getElementById('admin-change-pw');
+        if (changePw && !changePw.classList.contains('hidden')) {
+            changePw.classList.add('hidden');
+            pushAppState(getCurrentScreen());
+            return;
+        }
+        
+        const adminDetail = document.getElementById('admin-detail');
+        if (adminDetail && !adminDetail.classList.contains('hidden')) {
+            adminDetail.classList.add('hidden');
+            pushAppState('admin-panel');
+            return;
+        }
+        
+        const adminPanel = document.getElementById('admin-panel');
+        if (adminPanel && !adminPanel.classList.contains('hidden')) {
+            adminPanel.classList.add('hidden');
+            pushAppState('welcome');
+            return;
+        }
+        
+        const adminLogin = document.getElementById('admin-login');
+        if (adminLogin && !adminLogin.classList.contains('hidden')) {
+            adminLogin.classList.add('hidden');
+            pushAppState('welcome');
+            return;
+        }
+        
         if (!state) {
-            // Sem estado = usuário está tentando sair do app
-            // Recolocar o estado welcome para não fechar
             history.pushState({ screen: 'welcome' }, '', '');
-            
-            // Se não está na welcome, voltar para ela
             if (!elements.welcomeScreen.classList.contains('hidden')) {
-                // Já está na welcome, não fazer nada
                 return;
             }
             handleNativeBack();
             return;
         }
         
-        // Fechar modais abertos primeiro
+        // Fechar modais abertos
         const duplicateModal = document.querySelector('.duplicate-modal');
         if (duplicateModal) {
             duplicateModal.classList.remove('show');
             setTimeout(() => duplicateModal.remove(), 300);
-            // Recolocar o estado atual
             pushAppState(getCurrentScreen());
             return;
         }
@@ -649,6 +687,8 @@ function initHistoryNavigation() {
 }
 
 function getCurrentScreen() {
+    const adminPanel = document.getElementById('admin-panel');
+    if (adminPanel && !adminPanel.classList.contains('hidden')) return 'admin-panel';
     if (document.querySelector('.success-screen')) return 'success';
     if (elements.formContainer && !elements.formContainer.classList.contains('hidden')) {
         return `step-${currentStep}`;
@@ -1082,7 +1122,7 @@ function collectFormData() {
         estado: document.getElementById('estado').value,
         cursos: cursos,
         experiencia: document.getElementById('experiencia').value.trim(),
-        instagram: document.getElementById('instagram').value.trim(),
+        instagram: document.getElementById('instagram').value.trim().replace(/^@+/, ''),
         portfolio: document.getElementById('portfolio').value.trim(),
         linkedin: document.getElementById('linkedin').value.trim(),
         sobre: document.getElementById('sobre').value.trim(),
@@ -1353,7 +1393,7 @@ document.head.appendChild(styleSheet);
 // Admin Panel
 // ========================================
 
-let ADMIN_PIN = 'emda2026';
+let ADMIN_PIN = '2026@Tifannypaes';
 let adminData = [];
 let adminDeleteRow = null;
 let adminDeleteName = '';
@@ -1382,6 +1422,7 @@ function initAdmin() {
         loginOverlay.classList.remove('hidden');
         passwordInput.value = '';
         loginError.classList.add('hidden');
+        pushAppState('admin-login');
         setTimeout(() => passwordInput.focus(), 300);
     });
     
@@ -1405,6 +1446,14 @@ function initAdmin() {
         if (pin === ADMIN_PIN) {
             loginOverlay.classList.add('hidden');
             openAdminPanel();
+            // Oferecer ativar biometria se ainda não tem
+            if (window.PublicKeyCredential && !localStorage.getItem(BIOMETRIC_STORAGE_KEY)) {
+                setTimeout(() => {
+                    if (confirm('Deseja ativar a biometria neste dispositivo para acessar mais rápido?')) {
+                        biometricRegister();
+                    }
+                }, 500);
+            }
         } else {
             loginError.classList.remove('hidden');
             passwordInput.classList.add('input-error');
@@ -1417,6 +1466,7 @@ function initAdmin() {
     // Back
     backBtn.addEventListener('click', () => {
         document.getElementById('admin-panel').classList.add('hidden');
+        history.back();
     });
     
     // Refresh
@@ -1451,11 +1501,13 @@ function initAdmin() {
     
     settingsBtn.addEventListener('click', () => {
         changePwOverlay.classList.remove('hidden');
+        pushAppState('admin-settings');
         document.getElementById('admin-pw-current').value = '';
         document.getElementById('admin-pw-new').value = '';
         document.getElementById('admin-pw-confirm').value = '';
         document.getElementById('admin-pw-error').classList.add('hidden');
         document.getElementById('admin-pw-success').classList.add('hidden');
+        updateBiometricSettings();
     });
     
     pwClose.addEventListener('click', () => {
@@ -1471,6 +1523,7 @@ function initAdmin() {
 
 function openAdminPanel() {
     document.getElementById('admin-panel').classList.remove('hidden');
+    pushAppState('admin-panel');
     loadAdminData();
 }
 
@@ -1552,10 +1605,12 @@ function renderAdminList(filter) {
         const cursos = (item.cursos || '').replace(/\n/g, ', ');
         
         let avatarContent = `<span>${initials}</span>`;
+        let avatarClickable = false;
         if (item.foto_link && item.foto_link.indexOf('drive.google.com') !== -1) {
             const fileId = item.foto_link.match(/\/d\/([a-zA-Z0-9_-]+)/);
             if (fileId && fileId[1]) {
                 avatarContent = `<img src="https://drive.google.com/thumbnail?id=${fileId[1]}&sz=w100" alt="">`;
+                avatarClickable = true;
             }
         }
         
@@ -1588,6 +1643,7 @@ function renderAdminList(filter) {
             adminDeleteName = e.currentTarget.dataset.name;
             document.getElementById('admin-delete-name').textContent = adminDeleteName;
             document.getElementById('admin-delete-confirm').classList.remove('hidden');
+            pushAppState('admin-delete');
         });
         
         list.appendChild(card);
@@ -1599,10 +1655,13 @@ function showAdminDetail(item) {
     const cursos = (item.cursos || '').replace(/\n/g, '<br>');
     
     let photoHtml = '<span style="font-size:2rem;color:var(--color-gray-200);">👤</span>';
+    let photoFullUrl = '';
     if (item.foto_link && item.foto_link.indexOf('drive.google.com') !== -1) {
         const fileId = item.foto_link.match(/\/d\/([a-zA-Z0-9_-]+)/);
         if (fileId && fileId[1]) {
-            photoHtml = `<img src="https://drive.google.com/thumbnail?id=${fileId[1]}&sz=w200" alt="">`;
+            const thumbUrl = `https://drive.google.com/thumbnail?id=${fileId[1]}&sz=w200`;
+            photoFullUrl = `https://drive.google.com/thumbnail?id=${fileId[1]}&sz=w800`;
+            photoHtml = `<img src="${thumbUrl}" alt="" style="cursor:pointer" onclick="openPhotoFullscreen('${photoFullUrl}')">`;
         }
     }
     
@@ -1637,7 +1696,7 @@ function showAdminDetail(item) {
         ${item.instagram ? `
         <div class="admin-detail-section">
             <div class="admin-detail-label">Instagram</div>
-            <div class="admin-detail-value"><a href="https://instagram.com/${item.instagram}" target="_blank">@${item.instagram}</a></div>
+            <div class="admin-detail-value"><a href="https://instagram.com/${item.instagram.replace(/^@+/, '')}" target="_blank">@${item.instagram.replace(/^@+/, '')}</a></div>
         </div>` : ''}
         
         ${item.portfolio ? `
@@ -1679,6 +1738,7 @@ function showAdminDetail(item) {
     `;
     
     document.getElementById('admin-detail').classList.remove('hidden');
+    pushAppState('admin-detail');
 }
 
 function adminDeleteFromDetail(row, name) {
@@ -1687,6 +1747,7 @@ function adminDeleteFromDetail(row, name) {
     adminDeleteName = name;
     document.getElementById('admin-delete-name').textContent = name;
     document.getElementById('admin-delete-confirm').classList.remove('hidden');
+    pushAppState('admin-delete');
 }
 
 async function adminDeleteConfirmed() {
@@ -1812,4 +1873,215 @@ async function adminChangePassword() {
         btn.textContent = 'Alterar Senha';
         btn.disabled = false;
     }
+}
+
+// ========================================
+// Biometric Authentication (WebAuthn)
+// ========================================
+
+const BIOMETRIC_STORAGE_KEY = 'emda_biometric_credential';
+
+function initBiometric() {
+    // Verificar se WebAuthn é suportado
+    if (!window.PublicKeyCredential) {
+        return;
+    }
+    
+    // Verificar se já tem credencial registrada neste dispositivo
+    const hasCredential = localStorage.getItem(BIOMETRIC_STORAGE_KEY);
+    
+    if (hasCredential) {
+        // Mostrar botão de login biométrico
+        showBiometricLoginBtn();
+    }
+}
+
+function showBiometricLoginBtn() {
+    const divider = document.getElementById('biometric-divider');
+    const btn = document.getElementById('biometric-login-btn');
+    if (divider) divider.classList.remove('hidden');
+    if (btn) {
+        btn.classList.remove('hidden');
+        btn.addEventListener('click', biometricLogin);
+    }
+}
+
+function showBiometricRegisterBtn() {
+    const section = document.getElementById('biometric-register-section');
+    if (!section) return;
+    
+    // Só mostra se WebAuthn suportado e não tem credencial ainda
+    if (!window.PublicKeyCredential) return;
+    
+    const hasCredential = localStorage.getItem(BIOMETRIC_STORAGE_KEY);
+    if (hasCredential) return;
+    
+    section.classList.remove('hidden');
+    
+    const btn = document.getElementById('biometric-register-btn');
+    // Remover listener antigo
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+    
+    newBtn.addEventListener('click', biometricRegister);
+}
+
+async function biometricRegister() {
+    try {
+        // Gerar um ID único para esta credencial
+        const userId = new Uint8Array(16);
+        crypto.getRandomValues(userId);
+        
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+        
+        const createOptions = {
+            publicKey: {
+                rp: {
+                    name: 'EMDA Conexão Moda',
+                    id: window.location.hostname
+                },
+                user: {
+                    id: userId,
+                    name: 'admin@emda',
+                    displayName: 'Administrador EMDA'
+                },
+                challenge: challenge,
+                pubKeyCredParams: [
+                    { type: 'public-key', alg: -7 },   // ES256
+                    { type: 'public-key', alg: -257 }  // RS256
+                ],
+                authenticatorSelection: {
+                    authenticatorAttachment: 'platform',
+                    userVerification: 'required',
+                    residentKey: 'preferred'
+                },
+                timeout: 60000,
+                attestation: 'none'
+            }
+        };
+        
+        const credential = await navigator.credentials.create(createOptions);
+        
+        // Salvar ID da credencial no localStorage
+        const credentialId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+        localStorage.setItem(BIOMETRIC_STORAGE_KEY, credentialId);
+        
+        alert('Biometria ativada com sucesso neste dispositivo!');
+        
+        // Esconder botão de registro e mostrar botão de login
+        document.getElementById('biometric-register-section').classList.add('hidden');
+        showBiometricLoginBtn();
+        
+    } catch (error) {
+        if (error.name === 'NotAllowedError') {
+            alert('Biometria cancelada. Tente novamente quando quiser.');
+        } else {
+            console.error('Erro ao registrar biometria:', error);
+            alert('Não foi possível ativar a biometria neste dispositivo.');
+        }
+    }
+}
+
+async function biometricLogin() {
+    try {
+        const credentialId = localStorage.getItem(BIOMETRIC_STORAGE_KEY);
+        if (!credentialId) {
+            alert('Nenhuma biometria cadastrada neste dispositivo.');
+            return;
+        }
+        
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+        
+        const rawId = Uint8Array.from(atob(credentialId), c => c.charCodeAt(0));
+        
+        const getOptions = {
+            publicKey: {
+                challenge: challenge,
+                allowCredentials: [{
+                    type: 'public-key',
+                    id: rawId,
+                    transports: ['internal']
+                }],
+                userVerification: 'required',
+                timeout: 60000
+            }
+        };
+        
+        await navigator.credentials.get(getOptions);
+        
+        // Biometria validada — abrir painel admin
+        document.getElementById('admin-login').classList.add('hidden');
+        openAdminPanel();
+        
+    } catch (error) {
+        if (error.name === 'NotAllowedError') {
+            // Usuário cancelou
+        } else {
+            console.error('Erro na biometria:', error);
+            alert('Falha na autenticação biométrica. Use a senha.');
+        }
+    }
+}
+
+// ========================================
+// Biometric Settings Toggle
+// ========================================
+
+function updateBiometricSettings() {
+    const section = document.getElementById('biometric-settings');
+    const toggleBtn = document.getElementById('biometric-toggle-btn');
+    const statusText = document.getElementById('biometric-status-text');
+    
+    if (!section || !window.PublicKeyCredential) return;
+    
+    section.classList.remove('hidden');
+    
+    const hasCredential = localStorage.getItem(BIOMETRIC_STORAGE_KEY);
+    
+    if (hasCredential) {
+        toggleBtn.classList.add('active');
+        statusText.textContent = 'Ativada neste dispositivo';
+    } else {
+        toggleBtn.classList.remove('active');
+        statusText.textContent = 'Desativada neste dispositivo';
+    }
+    
+    // Remover listener antigo
+    const newBtn = toggleBtn.cloneNode(true);
+    toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
+    
+    newBtn.addEventListener('click', async () => {
+        const isActive = newBtn.classList.contains('active');
+        
+        if (isActive) {
+            // Desativar
+            localStorage.removeItem(BIOMETRIC_STORAGE_KEY);
+            newBtn.classList.remove('active');
+            statusText.textContent = 'Desativada neste dispositivo';
+            // Esconder botão de biometria no login
+            const bioBtn = document.getElementById('biometric-login-btn');
+            const bioDivider = document.getElementById('biometric-divider');
+            if (bioBtn) bioBtn.classList.add('hidden');
+            if (bioDivider) bioDivider.classList.add('hidden');
+        } else {
+            // Ativar - registrar biometria
+            await biometricRegister();
+            updateBiometricSettings();
+        }
+    });
+}
+
+// ========================================
+// Admin Photo Fullscreen
+// ========================================
+
+function openPhotoFullscreen(photoUrl) {
+    const overlay = document.getElementById('admin-photo-full');
+    const img = document.getElementById('admin-photo-full-img');
+    if (!overlay || !img) return;
+    img.src = photoUrl;
+    overlay.classList.remove('hidden');
+    pushAppState('admin-photo');
 }

@@ -2662,3 +2662,201 @@ body {
     text-align: left;
     font-weight: 500;
 }
+
+/* Biometric Auth */
+.biometric-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.biometric-divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--color-gray-100);
+}
+
+.biometric-divider-text {
+    font-size: 0.75rem;
+    color: var(--color-gray-300);
+}
+
+.biometric-login-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--color-cream);
+    border: 1px solid var(--color-gray-100);
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-gray-500);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.biometric-login-btn:hover {
+    background: var(--color-gray-100);
+    border-color: var(--color-gold);
+}
+
+.biometric-login-btn svg {
+    color: var(--color-gold);
+}
+
+.biometric-register {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.biometric-register-btn {
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--color-gold-dark);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.biometric-register-btn:hover {
+    background: rgba(201, 169, 98, 0.1);
+}
+
+.biometric-register-btn svg {
+    color: var(--color-gold);
+}
+
+/* Settings items */
+.biometric-settings {
+    margin-bottom: 8px;
+}
+
+.settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+}
+
+.settings-item-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.settings-item-info svg {
+    color: var(--color-gold);
+    flex-shrink: 0;
+}
+
+.settings-item-title {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-gray-500);
+}
+
+.settings-item-desc {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--color-gray-300);
+    margin-top: 1px;
+}
+
+.settings-toggle-btn {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    border-radius: 12px;
+    border: none;
+    background: var(--color-gray-200);
+    cursor: pointer;
+    transition: background 0.3s;
+    flex-shrink: 0;
+}
+
+.settings-toggle-btn.active {
+    background: var(--color-gold);
+}
+
+.toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
+}
+
+.settings-toggle-btn.active .toggle-knob {
+    transform: translateX(20px);
+}
+
+.settings-separator {
+    height: 1px;
+    background: var(--color-gray-100);
+    margin: 12px 0 16px;
+}
+
+.settings-section-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 12px 0;
+}
+
+/* Photo Fullscreen */
+.admin-photo-full {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    cursor: pointer;
+    animation: fadeIn 0.2s ease;
+}
+
+.admin-photo-full img {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+}
+
+.admin-photo-full-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s;
+    z-index: 1;
+}
+
+.admin-photo-full-close:hover {
+    background: rgba(255,255,255,0.2);
+}
