@@ -1489,13 +1489,17 @@ function initAdmin() {
                     renderAdminList('');
                 }
                 
-                // Oferecer biometria
+                // Oferecer biometria, depois install prompt
                 if (window.PublicKeyCredential && !localStorage.getItem(BIOMETRIC_STORAGE_KEY)) {
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         if (confirm('Deseja ativar a biometria neste dispositivo para acessar mais rápido?')) {
-                            biometricRegister();
+                            await biometricRegister();
                         }
+                        // Mostrar install prompt depois da biometria
+                        setTimeout(() => showInstallPromptInAdmin(), 500);
                     }, 500);
+                } else {
+                    showInstallPromptInAdmin();
                 }
             }
         } catch (error) {
@@ -1590,7 +1594,6 @@ function openAdminPanel() {
     }
     document.getElementById('admin-stat-recentes')?.classList.remove('open');
     loadAdminData();
-    showInstallPromptInAdmin();
 }
 
 async function loadAdminData() {
@@ -2108,6 +2111,7 @@ async function biometricLogin() {
         adminAuthMode = 'bio';
         document.getElementById('admin-login').classList.add('hidden');
         openAdminPanel();
+        setTimeout(() => showInstallPromptInAdmin(), 500);
         
     } catch (error) {
         if (error.name === 'NotAllowedError') {
@@ -2352,6 +2356,10 @@ function initDateFilter() {
             // Clear custom inputs
             document.getElementById('admin-date-from').value = '';
             document.getElementById('admin-date-to').value = '';
+            
+            // Close dropdown
+            filterPanel.classList.add('hidden');
+            statBtn.classList.remove('open');
         });
     });
     
@@ -2383,6 +2391,10 @@ function initDateFilter() {
         updateDateFilterLabel(label);
         
         applyDateFilter();
+        
+        // Close dropdown
+        filterPanel.classList.add('hidden');
+        statBtn.classList.remove('open');
     });
 }
 
