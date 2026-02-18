@@ -1,4 +1,4 @@
-# EMDA Banco de Talentos - PWA
+# EMDA Conexão Moda - PWA
 
 Progressive Web App para coleta de currículos da Escola de Moda Denise Aguiar.
 

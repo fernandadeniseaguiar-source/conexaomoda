@@ -1,11 +1,11 @@
-# EMDA Banco de Talentos - Configuração Google Sheets
+# EMDA Conexão Moda - Configuração Google Sheets
 
 ## Passo a Passo para Configurar a Integração com Google Sheets
 
 ### 1. Criar a Planilha
 
 1. Acesse [Google Sheets](https://sheets.google.com)
-2. Crie uma nova planilha chamada "EMDA - Banco de Talentos"
+2. Crie uma nova planilha chamada "EMDA - Conexão Moda"
 3. Na primeira linha, adicione os cabeçalhos (exatamente como abaixo):
 
 ```
@@ -33,7 +33,7 @@ N1: Tem Foto
 
 ```javascript
 // ========================================
-// EMDA Banco de Talentos - Google Apps Script
+// EMDA Conexão Moda - Google Apps Script
 // ========================================
 
 // ID da planilha (pegue da URL da sua planilha)
@@ -149,7 +149,7 @@ function testDoPost() {
 1. Clique em **Implantar > Nova implantação**
 2. Clique no ícone de engrenagem e selecione **App da Web**
 3. Configure:
-   - **Descrição**: EMDA Banco de Talentos
+   - **Descrição**: EMDA Conexão Moda
    - **Executar como**: Eu mesmo
    - **Quem tem acesso**: Qualquer pessoa
 4. Clique em **Implantar**

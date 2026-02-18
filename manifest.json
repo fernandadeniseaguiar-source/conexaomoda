@@ -1,7 +1,7 @@
 {
     "name": "EMDA - Talentos",
     "short_name": "EMDA Talentos",
-    "description": "Banco de Talentos - Escola de Moda Denise Aguiar",
+    "description": "Conexão Moda - Escola de Moda Denise Aguiar",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#000000",

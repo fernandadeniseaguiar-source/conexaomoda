@@ -1,5 +1,5 @@
 /* ========================================
-   EMDA - Banco de Talentos
+   EMDA - Conexão Moda
    Application JavaScript v2.1
    + Verificação de duplicata no banco (nome/email/whatsapp)
    + Notificação WhatsApp
@@ -330,7 +330,7 @@ function showDuplicateModal(field, existingData) {
             ${dataEnvio ? `<p class="duplicate-modal-date">Cadastrado em ${dataEnvio}</p>` : ''}
             
             <p class="duplicate-modal-description">
-                Identificamos que este ${fieldNames[field]} já está registrado no nosso Banco de Talentos.
+                Identificamos que este ${fieldNames[field]} já está registrado no nosso Conexão Moda.
             </p>
             
             <div class="duplicate-modal-buttons">
@@ -1177,7 +1177,7 @@ function showSuccessScreen(formData) {
             <p class="success-name">${formData.nome}</p>
             
             <p class="success-message">
-                Obrigado por se cadastrar no nosso Banco de Talentos. 
+                Obrigado por se cadastrar no nosso Conexão Moda. 
                 Entraremos em contato caso surja uma oportunidade compatível com seu perfil.
             </p>
             
