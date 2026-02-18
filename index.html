@@ -709,13 +709,14 @@
     </div>
 
     <!-- Admin Photo Fullscreen -->
-    <div id="admin-photo-full" class="admin-photo-full hidden" onclick="this.classList.add('hidden')">
-        <button class="admin-photo-full-close">
+    <div id="admin-photo-full" class="admin-photo-full hidden">
+        <button class="admin-photo-full-close" id="admin-photo-full-close">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
         </button>
         <img id="admin-photo-full-img" src="" alt="Foto">
+        <span class="admin-photo-zoom-hint">Toque duas vezes para ampliar</span>
     </div>
 
     <!-- Admin Delete Confirm -->

@@ -2831,8 +2831,9 @@ body {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    cursor: pointer;
     animation: fadeIn 0.2s ease;
+    overflow: hidden;
+    touch-action: none;
 }
 
 .admin-photo-full img {
@@ -2841,6 +2842,18 @@ body {
     object-fit: contain;
     border-radius: 8px;
     box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    transition: transform 0.2s ease;
+    transform-origin: center center;
+    cursor: zoom-in;
+}
+
+.admin-photo-full img.zoomed {
+    cursor: grab;
+}
+
+.admin-photo-full img.dragging {
+    cursor: grabbing;
+    transition: none;
 }
 
 .admin-photo-full-close {
@@ -2859,6 +2872,16 @@ body {
 
 .admin-photo-full-close:hover {
     background: rgba(255,255,255,0.2);
+}
+
+.admin-photo-zoom-hint {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.4);
+    font-size: 0.7rem;
+    pointer-events: none;
 }
 
 /* Password toggle eye */

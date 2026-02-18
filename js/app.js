@@ -2115,10 +2115,118 @@ function updateBiometricSettings() {
 function openPhotoFullscreen(photoUrl) {
     const overlay = document.getElementById('admin-photo-full');
     const img = document.getElementById('admin-photo-full-img');
+    const closeBtn = document.getElementById('admin-photo-full-close');
     if (!overlay || !img) return;
+    
     img.src = photoUrl;
     overlay.classList.remove('hidden');
     pushAppState('admin-photo');
+    
+    // Reset zoom state
+    let scale = 1;
+    let posX = 0;
+    let posY = 0;
+    let lastTap = 0;
+    let pinchStartDist = 0;
+    let pinchStartScale = 1;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let isDragging = false;
+    
+    function updateTransform() {
+        img.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+        img.classList.toggle('zoomed', scale > 1);
+    }
+    
+    function resetZoom() {
+        scale = 1;
+        posX = 0;
+        posY = 0;
+        updateTransform();
+        img.classList.remove('zoomed', 'dragging');
+    }
+    
+    function closeFullscreen() {
+        resetZoom();
+        overlay.classList.add('hidden');
+    }
+    
+    // Close button
+    closeBtn.onclick = closeFullscreen;
+    
+    // Double tap to zoom
+    img.addEventListener('click', function handler(e) {
+        const now = Date.now();
+        if (now - lastTap < 300) {
+            // Double tap
+            e.preventDefault();
+            if (scale > 1) {
+                resetZoom();
+            } else {
+                scale = 3;
+                // Zoom para o ponto do toque
+                const rect = img.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                posX = -x * 2;
+                posY = -y * 2;
+                updateTransform();
+            }
+            lastTap = 0;
+        } else {
+            lastTap = now;
+            // Single tap — fechar se não está com zoom
+            setTimeout(() => {
+                if (lastTap !== 0 && scale <= 1) {
+                    closeFullscreen();
+                }
+                lastTap = 0;
+            }, 300);
+        }
+    });
+    
+    // Pinch zoom
+    img.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            pinchStartDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            pinchStartScale = scale;
+        } else if (e.touches.length === 1 && scale > 1) {
+            isDragging = true;
+            dragStartX = e.touches[0].clientX - posX;
+            dragStartY = e.touches[0].clientY - posY;
+            img.classList.add('dragging');
+        }
+    }, { passive: false });
+    
+    img.addEventListener('touchmove', function(e) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const dist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            scale = Math.min(Math.max(pinchStartScale * (dist / pinchStartDist), 1), 5);
+            if (scale <= 1) { posX = 0; posY = 0; }
+            updateTransform();
+        } else if (e.touches.length === 1 && isDragging && scale > 1) {
+            e.preventDefault();
+            posX = e.touches[0].clientX - dragStartX;
+            posY = e.touches[0].clientY - dragStartY;
+            updateTransform();
+        }
+    }, { passive: false });
+    
+    img.addEventListener('touchend', function(e) {
+        isDragging = false;
+        img.classList.remove('dragging');
+        if (scale <= 1.05) {
+            resetZoom();
+        }
+    });
 }
 
 // ========================================
