@@ -1611,6 +1611,36 @@ function updateAdminStats() {
         return (now - ts) < sevenDays;
     }).length;
     document.getElementById('admin-recentes').textContent = recentes;
+    
+    // Popular sugestões de busca
+    updateSearchSuggestions();
+}
+
+function updateSearchSuggestions() {
+    const datalist = document.getElementById('admin-search-suggestions');
+    if (!datalist) return;
+    
+    const suggestions = new Set();
+    adminData.forEach(d => {
+        if (d.nome) suggestions.add(d.nome);
+        if (d.email) suggestions.add(d.email);
+        if (d.cidade) suggestions.add(d.cidade);
+        if (d.estado) suggestions.add(d.cidade + '/' + d.estado);
+        if (d.instagram) suggestions.add(d.instagram.replace(/^@+/, ''));
+        if (d.cursos) {
+            d.cursos.split('\n').forEach(c => {
+                const nome = c.replace(/\s*\(\d{4}\)/, '').trim();
+                if (nome) suggestions.add(nome);
+            });
+        }
+    });
+    
+    datalist.innerHTML = '';
+    suggestions.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        datalist.appendChild(opt);
+    });
 }
 
 function renderAdminList(filter) {
