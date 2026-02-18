@@ -2088,3 +2088,577 @@ body {
         transform: translateY(0);
     }
 }
+
+/* ========================================
+   Admin Area
+======================================== */
+
+/* Botão discreto de acesso */
+.admin-access-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.15);
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+    transition: color 0.3s;
+}
+
+.admin-access-btn:hover {
+    color: rgba(201, 169, 98, 0.5);
+}
+
+/* Overlay */
+.admin-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.admin-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--color-gray-300);
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.2s;
+}
+
+.admin-close-btn:hover {
+    color: var(--color-white);
+}
+
+/* Login Card */
+.admin-login-card {
+    position: relative;
+    background: var(--color-white);
+    border-radius: 16px;
+    padding: 40px 32px;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.admin-login-header {
+    margin-bottom: 28px;
+}
+
+.admin-login-header svg {
+    color: var(--color-gold);
+    margin-bottom: 12px;
+}
+
+.admin-login-header h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--color-black);
+    margin: 0 0 4px 0;
+}
+
+.admin-login-header p {
+    font-size: 0.8rem;
+    color: var(--color-gray-300);
+    margin: 0;
+}
+
+.admin-login-form .form-group {
+    text-align: left;
+    margin-bottom: 16px;
+}
+
+.admin-login-error {
+    color: #e74c3c;
+    font-size: 0.78rem;
+    margin: -8px 0 12px 0;
+    text-align: left;
+}
+
+.admin-login-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--color-black);
+    color: var(--color-gold);
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+}
+
+.admin-login-submit:hover {
+    background: var(--color-gray-500);
+}
+
+/* Admin Panel */
+.admin-panel {
+    position: fixed;
+    inset: 0;
+    background: var(--color-ivory);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+/* Admin Header */
+.admin-header {
+    background: var(--color-black);
+    color: var(--color-white);
+    padding: 16px 20px 12px;
+    flex-shrink: 0;
+}
+
+.admin-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.admin-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-header-btn {
+    background: none;
+    border: none;
+    color: var(--color-white);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.admin-header-btn:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.admin-header-title {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 400;
+    margin: 0;
+    color: var(--color-white);
+}
+
+.admin-header-subtitle {
+    font-size: 0.7rem;
+    color: var(--color-gold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Stats */
+.admin-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.admin-stat {
+    flex: 1;
+    text-align: center;
+    padding: 10px 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+}
+
+.admin-stat-number {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-gold);
+}
+
+.admin-stat-label {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Search */
+.admin-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.admin-search svg {
+    color: rgba(255,255,255,0.3);
+    flex-shrink: 0;
+}
+
+.admin-search-input {
+    background: none;
+    border: none;
+    color: var(--color-white);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    width: 100%;
+    outline: none;
+}
+
+.admin-search-input::placeholder {
+    color: rgba(255,255,255,0.25);
+}
+
+/* Admin Body */
+.admin-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-gray-300);
+}
+
+.admin-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-gray-100);
+    border-top-color: var(--color-gold);
+    border-radius: 50%;
+    margin: 0 auto 12px;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.admin-loading p,
+.admin-empty p {
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.admin-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-gray-300);
+}
+
+/* Card List */
+.admin-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.admin-card {
+    background: var(--color-white);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.admin-card:hover {
+    border-color: var(--color-gold);
+    box-shadow: var(--shadow-md);
+}
+
+.admin-card-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    font-size: 1rem;
+    color: var(--color-gray-300);
+}
+
+.admin-card-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.admin-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-card-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-gray-500);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-card-detail {
+    font-size: 0.72rem;
+    color: var(--color-gray-300);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-card-date {
+    font-size: 0.68rem;
+    color: var(--color-gray-200);
+    flex-shrink: 0;
+}
+
+.admin-card-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.admin-card-btn {
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    color: var(--color-gray-300);
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.admin-card-btn:hover {
+    background: var(--color-cream);
+}
+
+.admin-card-btn.delete:hover {
+    color: #e74c3c;
+    background: #fef2f2;
+}
+
+/* Detail Modal */
+.admin-detail-card {
+    position: relative;
+    background: var(--color-white);
+    border-radius: 16px;
+    padding: 32px 24px;
+    max-width: 440px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+}
+
+.admin-detail-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    overflow: hidden;
+    background: var(--color-cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-detail-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.admin-detail-name {
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--color-black);
+    margin: 0 0 4px 0;
+}
+
+.admin-detail-location {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--color-gray-300);
+    margin: 0 0 20px 0;
+}
+
+.admin-detail-section {
+    margin-bottom: 16px;
+}
+
+.admin-detail-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--color-gray-300);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.admin-detail-value {
+    font-size: 0.85rem;
+    color: var(--color-gray-500);
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.admin-detail-value a {
+    color: var(--color-gold-dark);
+    text-decoration: none;
+}
+
+.admin-detail-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-gray-100);
+}
+
+.admin-detail-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.admin-detail-btn.whatsapp {
+    background: #25d366;
+    color: white;
+}
+
+.admin-detail-btn.whatsapp:hover {
+    background: #20b858;
+}
+
+.admin-detail-btn.delete {
+    background: #fef2f2;
+    color: #e74c3c;
+}
+
+.admin-detail-btn.delete:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+/* Delete Confirm */
+.admin-confirm-card {
+    background: var(--color-white);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    animation: slideUp 0.2s ease;
+}
+
+.admin-confirm-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--color-black);
+    margin: 16px 0 4px 0;
+}
+
+.admin-confirm-card p {
+    font-size: 0.88rem;
+    color: var(--color-gray-400);
+    margin: 0;
+}
+
+.admin-confirm-warn {
+    font-size: 0.75rem !important;
+    color: var(--color-gray-300) !important;
+    margin-top: 8px !important;
+}
+
+.admin-confirm-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.admin-confirm-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.admin-confirm-btn.cancel {
+    background: var(--color-cream);
+    color: var(--color-gray-500);
+}
+
+.admin-confirm-btn.delete {
+    background: #e74c3c;
+    color: white;
+}
+
+.admin-confirm-btn.delete:hover {
+    background: #c0392b;
+}
+
+.admin-pw-success {
+    color: #27ae60;
+    font-size: 0.78rem;
+    margin: -8px 0 12px 0;
+    text-align: left;
+    font-weight: 500;
+}

@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCityAutocomplete();
     initCursosAnos();
     initDuplicateCheck();
+    initAdmin();
     initServiceWorker();
     initInstallPrompt();
 });
@@ -1347,3 +1348,468 @@ styleSheet.textContent = `
     }
 `;
 document.head.appendChild(styleSheet);
+
+// ========================================
+// Admin Panel
+// ========================================
+
+let ADMIN_PIN = 'emda2026';
+let adminData = [];
+let adminDeleteRow = null;
+let adminDeleteName = '';
+
+function initAdmin() {
+    const accessBtn = document.getElementById('admin-access-btn');
+    const loginOverlay = document.getElementById('admin-login');
+    const loginClose = document.getElementById('admin-login-close');
+    const loginBtn = document.getElementById('admin-login-btn');
+    const passwordInput = document.getElementById('admin-password');
+    const loginError = document.getElementById('admin-login-error');
+    const backBtn = document.getElementById('admin-back-btn');
+    const refreshBtn = document.getElementById('admin-refresh-btn');
+    const searchInput = document.getElementById('admin-search-input');
+    const detailOverlay = document.getElementById('admin-detail');
+    const detailClose = document.getElementById('admin-detail-close');
+    const deleteConfirm = document.getElementById('admin-delete-confirm');
+    const deleteCancel = document.getElementById('admin-delete-cancel');
+    const deleteYes = document.getElementById('admin-delete-yes');
+    
+    if (!accessBtn) return;
+    
+    // Abrir login
+    accessBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        loginOverlay.classList.remove('hidden');
+        passwordInput.value = '';
+        loginError.classList.add('hidden');
+        setTimeout(() => passwordInput.focus(), 300);
+    });
+    
+    // Fechar login
+    loginClose.addEventListener('click', () => {
+        loginOverlay.classList.add('hidden');
+    });
+    
+    loginOverlay.addEventListener('click', (e) => {
+        if (e.target === loginOverlay) loginOverlay.classList.add('hidden');
+    });
+    
+    // Login
+    loginBtn.addEventListener('click', () => adminLogin());
+    passwordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') adminLogin();
+    });
+    
+    function adminLogin() {
+        const pin = passwordInput.value.trim();
+        if (pin === ADMIN_PIN) {
+            loginOverlay.classList.add('hidden');
+            openAdminPanel();
+        } else {
+            loginError.classList.remove('hidden');
+            passwordInput.classList.add('input-error');
+            setTimeout(() => {
+                passwordInput.classList.remove('input-error');
+            }, 500);
+        }
+    }
+    
+    // Back
+    backBtn.addEventListener('click', () => {
+        document.getElementById('admin-panel').classList.add('hidden');
+    });
+    
+    // Refresh
+    refreshBtn.addEventListener('click', () => loadAdminData());
+    
+    // Search
+    searchInput.addEventListener('input', () => {
+        renderAdminList(searchInput.value.trim().toLowerCase());
+    });
+    
+    // Detail close
+    detailClose.addEventListener('click', () => {
+        detailOverlay.classList.add('hidden');
+    });
+    
+    detailOverlay.addEventListener('click', (e) => {
+        if (e.target === detailOverlay) detailOverlay.classList.add('hidden');
+    });
+    
+    // Delete confirm
+    deleteCancel.addEventListener('click', () => {
+        deleteConfirm.classList.add('hidden');
+    });
+    
+    deleteYes.addEventListener('click', () => adminDeleteConfirmed());
+    
+    // Settings / Change Password
+    const settingsBtn = document.getElementById('admin-settings-btn');
+    const changePwOverlay = document.getElementById('admin-change-pw');
+    const pwClose = document.getElementById('admin-pw-close');
+    const pwBtn = document.getElementById('admin-pw-btn');
+    
+    settingsBtn.addEventListener('click', () => {
+        changePwOverlay.classList.remove('hidden');
+        document.getElementById('admin-pw-current').value = '';
+        document.getElementById('admin-pw-new').value = '';
+        document.getElementById('admin-pw-confirm').value = '';
+        document.getElementById('admin-pw-error').classList.add('hidden');
+        document.getElementById('admin-pw-success').classList.add('hidden');
+    });
+    
+    pwClose.addEventListener('click', () => {
+        changePwOverlay.classList.add('hidden');
+    });
+    
+    changePwOverlay.addEventListener('click', (e) => {
+        if (e.target === changePwOverlay) changePwOverlay.classList.add('hidden');
+    });
+    
+    pwBtn.addEventListener('click', () => adminChangePassword());
+}
+
+function openAdminPanel() {
+    document.getElementById('admin-panel').classList.remove('hidden');
+    loadAdminData();
+}
+
+async function loadAdminData() {
+    const loading = document.getElementById('admin-loading');
+    const empty = document.getElementById('admin-empty');
+    const list = document.getElementById('admin-list');
+    
+    loading.classList.remove('hidden');
+    empty.classList.add('hidden');
+    list.innerHTML = '';
+    
+    try {
+        const url = CONFIG.GOOGLE_SCRIPT_URL + '?action=list&pin=' + ADMIN_PIN;
+        const response = await fetch(url);
+        const json = await response.json();
+        
+        adminData = json.data || [];
+        
+        loading.classList.add('hidden');
+        
+        if (adminData.length === 0) {
+            empty.classList.remove('hidden');
+        } else {
+            updateAdminStats();
+            renderAdminList('');
+        }
+    } catch (error) {
+        loading.classList.add('hidden');
+        empty.classList.remove('hidden');
+        console.error('Erro ao carregar dados admin:', error);
+    }
+}
+
+function updateAdminStats() {
+    document.getElementById('admin-total').textContent = adminData.length;
+    
+    const comFoto = adminData.filter(d => d.foto === 'Sim').length;
+    document.getElementById('admin-com-foto').textContent = comFoto;
+    
+    const now = new Date();
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    const recentes = adminData.filter(d => {
+        const ts = new Date(d.timestamp);
+        return (now - ts) < sevenDays;
+    }).length;
+    document.getElementById('admin-recentes').textContent = recentes;
+}
+
+function renderAdminList(filter) {
+    const list = document.getElementById('admin-list');
+    const empty = document.getElementById('admin-empty');
+    list.innerHTML = '';
+    
+    let filtered = adminData;
+    if (filter) {
+        filtered = adminData.filter(d => {
+            const searchStr = [d.nome, d.email, d.cidade, d.cursos, d.instagram].join(' ').toLowerCase();
+            return searchStr.includes(filter);
+        });
+    }
+    
+    if (filtered.length === 0) {
+        empty.classList.remove('hidden');
+        return;
+    }
+    
+    empty.classList.add('hidden');
+    
+    // Ordenar mais recente primeiro
+    filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'admin-card';
+        
+        const initials = (item.nome || '?').charAt(0).toUpperCase();
+        const date = formatAdminDate(item.timestamp);
+        const cursos = (item.cursos || '').replace(/\n/g, ', ');
+        
+        let avatarContent = `<span>${initials}</span>`;
+        if (item.foto_link && item.foto_link.indexOf('drive.google.com') !== -1) {
+            const fileId = item.foto_link.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            if (fileId && fileId[1]) {
+                avatarContent = `<img src="https://drive.google.com/thumbnail?id=${fileId[1]}&sz=w100" alt="">`;
+            }
+        }
+        
+        card.innerHTML = `
+            <div class="admin-card-avatar">${avatarContent}</div>
+            <div class="admin-card-info">
+                <div class="admin-card-name">${item.nome || 'Sem nome'}</div>
+                <div class="admin-card-detail">${cursos || 'Sem curso'}</div>
+            </div>
+            <span class="admin-card-date">${date}</span>
+            <div class="admin-card-actions">
+                <button class="admin-card-btn delete" data-row="${item._row}" data-name="${item.nome}" title="Excluir">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                </button>
+            </div>
+        `;
+        
+        // Click no card abre detalhe
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.admin-card-btn')) return;
+            showAdminDetail(item);
+        });
+        
+        // Click no delete
+        card.querySelector('.admin-card-btn.delete').addEventListener('click', (e) => {
+            e.stopPropagation();
+            adminDeleteRow = parseInt(e.currentTarget.dataset.row);
+            adminDeleteName = e.currentTarget.dataset.name;
+            document.getElementById('admin-delete-name').textContent = adminDeleteName;
+            document.getElementById('admin-delete-confirm').classList.remove('hidden');
+        });
+        
+        list.appendChild(card);
+    });
+}
+
+function showAdminDetail(item) {
+    const content = document.getElementById('admin-detail-content');
+    const cursos = (item.cursos || '').replace(/\n/g, '<br>');
+    
+    let photoHtml = '<span style="font-size:2rem;color:var(--color-gray-200);">👤</span>';
+    if (item.foto_link && item.foto_link.indexOf('drive.google.com') !== -1) {
+        const fileId = item.foto_link.match(/\/d\/([a-zA-Z0-9_-]+)/);
+        if (fileId && fileId[1]) {
+            photoHtml = `<img src="https://drive.google.com/thumbnail?id=${fileId[1]}&sz=w200" alt="">`;
+        }
+    }
+    
+    const whatsappClean = (item.whatsapp || '').replace(/\D/g, '');
+    
+    content.innerHTML = `
+        <div class="admin-detail-photo">${photoHtml}</div>
+        <h2 class="admin-detail-name">${item.nome || 'Sem nome'}</h2>
+        <p class="admin-detail-location">${item.cidade ? item.cidade + '/' + item.estado : ''}</p>
+        
+        <div class="admin-detail-section">
+            <div class="admin-detail-label">Email</div>
+            <div class="admin-detail-value"><a href="mailto:${item.email}">${item.email || '-'}</a></div>
+        </div>
+        
+        <div class="admin-detail-section">
+            <div class="admin-detail-label">WhatsApp</div>
+            <div class="admin-detail-value">${item.whatsapp || '-'}</div>
+        </div>
+        
+        <div class="admin-detail-section">
+            <div class="admin-detail-label">Cursos</div>
+            <div class="admin-detail-value">${cursos || '-'}</div>
+        </div>
+        
+        ${item.experiencia ? `
+        <div class="admin-detail-section">
+            <div class="admin-detail-label">Experiência</div>
+            <div class="admin-detail-value">${item.experiencia}</div>
+        </div>` : ''}
+        
+        ${item.instagram ? `
+        <div class="admin-detail-section">
+            <div class="admin-detail-label">Instagram</div>
+            <div class="admin-detail-value"><a href="https://instagram.com/${item.instagram}" target="_blank">@${item.instagram}</a></div>
+        </div>` : ''}
+        
+        ${item.portfolio ? `
+        <div class="admin-detail-section">
+            <div class="admin-detail-label">Portfólio</div>
+            <div class="admin-detail-value"><a href="${item.portfolio}" target="_blank">${item.portfolio}</a></div>
+        </div>` : ''}
+        
+        ${item.linkedin ? `
+        <div class="admin-detail-section">
+            <div class="admin-detail-label">LinkedIn</div>
+            <div class="admin-detail-value"><a href="${item.linkedin}" target="_blank">Ver perfil</a></div>
+        </div>` : ''}
+        
+        ${item.sobre ? `
+        <div class="admin-detail-section">
+            <div class="admin-detail-label">Sobre</div>
+            <div class="admin-detail-value">${item.sobre}</div>
+        </div>` : ''}
+        
+        <div class="admin-detail-section">
+            <div class="admin-detail-label">Cadastrado em</div>
+            <div class="admin-detail-value">${formatAdminDate(item.timestamp, true)}</div>
+        </div>
+        
+        <div class="admin-detail-actions">
+            ${whatsappClean ? `
+            <button class="admin-detail-btn whatsapp" onclick="window.open('https://wa.me/55${whatsappClean}', '_blank')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.637-1.467A11.932 11.932 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.171 0-4.178-.69-5.822-1.863l-.417-.283-2.751.87.914-2.669-.31-.447A9.714 9.714 0 012.25 12C2.25 6.624 6.624 2.25 12 2.25S21.75 6.624 21.75 12 17.376 21.75 12 21.75z"/></svg>
+                WhatsApp
+            </button>` : ''}
+            <button class="admin-detail-btn delete" onclick="adminDeleteFromDetail(${item._row}, '${(item.nome || '').replace(/'/g, "\\'")}')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                Excluir
+            </button>
+        </div>
+    `;
+    
+    document.getElementById('admin-detail').classList.remove('hidden');
+}
+
+function adminDeleteFromDetail(row, name) {
+    document.getElementById('admin-detail').classList.add('hidden');
+    adminDeleteRow = row;
+    adminDeleteName = name;
+    document.getElementById('admin-delete-name').textContent = name;
+    document.getElementById('admin-delete-confirm').classList.remove('hidden');
+}
+
+async function adminDeleteConfirmed() {
+    const confirmOverlay = document.getElementById('admin-delete-confirm');
+    const deleteBtn = document.getElementById('admin-delete-yes');
+    
+    deleteBtn.textContent = 'Excluindo...';
+    deleteBtn.disabled = true;
+    
+    try {
+        const url = CONFIG.GOOGLE_SCRIPT_URL + '?action=delete&pin=' + ADMIN_PIN + '&row=' + adminDeleteRow;
+        const response = await fetch(url);
+        const json = await response.json();
+        
+        if (json.success) {
+            confirmOverlay.classList.add('hidden');
+            loadAdminData(); // Recarregar lista
+        } else {
+            alert('Erro ao excluir: ' + (json.error || 'Tente novamente'));
+        }
+    } catch (error) {
+        alert('Erro de conexão. Tente novamente.');
+    } finally {
+        deleteBtn.textContent = 'Excluir';
+        deleteBtn.disabled = false;
+    }
+}
+
+function formatAdminDate(timestamp, full) {
+    if (!timestamp) return '';
+    const d = new Date(timestamp);
+    if (isNaN(d)) return '';
+    
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const year = d.getFullYear();
+    
+    if (full) {
+        const hours = d.getHours().toString().padStart(2, '0');
+        const mins = d.getMinutes().toString().padStart(2, '0');
+        return `${day}/${month}/${year} às ${hours}:${mins}`;
+    }
+    
+    return `${day}/${month}`;
+}
+
+// ========================================
+// Admin Change Password
+// ========================================
+
+async function adminChangePassword() {
+    const currentInput = document.getElementById('admin-pw-current');
+    const newInput = document.getElementById('admin-pw-new');
+    const confirmInput = document.getElementById('admin-pw-confirm');
+    const errorEl = document.getElementById('admin-pw-error');
+    const successEl = document.getElementById('admin-pw-success');
+    const btn = document.getElementById('admin-pw-btn');
+    
+    errorEl.classList.add('hidden');
+    successEl.classList.add('hidden');
+    
+    const current = currentInput.value.trim();
+    const newPin = newInput.value.trim();
+    const confirm = confirmInput.value.trim();
+    
+    // Validações
+    if (!current) {
+        errorEl.textContent = 'Digite a senha atual';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    if (current !== ADMIN_PIN) {
+        errorEl.textContent = 'Senha atual incorreta';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    if (newPin.length < 4) {
+        errorEl.textContent = 'Nova senha deve ter pelo menos 4 caracteres';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    if (newPin !== confirm) {
+        errorEl.textContent = 'As senhas não coincidem';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    if (newPin === current) {
+        errorEl.textContent = 'Nova senha deve ser diferente da atual';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    btn.textContent = 'Alterando...';
+    btn.disabled = true;
+    
+    try {
+        const url = CONFIG.GOOGLE_SCRIPT_URL + '?action=changepin&current=' + encodeURIComponent(current) + '&newpin=' + encodeURIComponent(newPin);
+        const response = await fetch(url);
+        const json = await response.json();
+        
+        if (json.success) {
+            ADMIN_PIN = newPin;
+            successEl.classList.remove('hidden');
+            currentInput.value = '';
+            newInput.value = '';
+            confirmInput.value = '';
+            
+            setTimeout(() => {
+                document.getElementById('admin-change-pw').classList.add('hidden');
+            }, 1500);
+        } else {
+            errorEl.textContent = json.error || 'Erro ao alterar senha';
+            errorEl.classList.remove('hidden');
+        }
+    } catch (error) {
+        errorEl.textContent = 'Erro de conexão. Tente novamente.';
+        errorEl.classList.remove('hidden');
+    } finally {
+        btn.textContent = 'Alterar Senha';
+        btn.disabled = false;
+    }
+}
